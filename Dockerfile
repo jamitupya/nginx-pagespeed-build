@@ -24,7 +24,8 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm ; yum -y ins
 RUN yum -y install yum-utils ; yum-config-manager --enable remi,remi-php70 ; yum -y update ; yum clean all
 
 # Install compile tools + prerequisites
-RUN yum -y --enablerepo=remi,remi-php56 install git gcc-c++ pcre-devel libxml2 libxml2-devel g++ libcurl-devel doc-base gd autoconf automake1.9 wget bison libtool zlib-devel libgssapi libunwind automake libatomic unzip bzip2-devel libnet-devel python2 python2-devel jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel ; yum clean all
+RUN yum -y groupinstall 'Development Tools'
+RUN yum -y --enablerepo=remi,remi-php56 install git pcre-devel libxml2 libxml2-devel libcurl-devel doc-base gd wget bison libtool zlib-devel libgssapi libunwind automake libatomic unzip bzip2-devel libnet-devel python2 python2-devel jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel ; yum clean all
 
 # setup source folders
 RUN mkdir .ssh
