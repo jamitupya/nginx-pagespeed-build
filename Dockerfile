@@ -25,7 +25,7 @@ RUN yum -y install yum-utils ; yum-config-manager --enable remi,remi-php70 ; yum
 
 # Install compile tools + prerequisites
 RUN yum -y --enablerepo=remi,remi-php70 groupinstall 'Development Tools'
-RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-devel libcurl-devel doc-base gd wget bison libtool zlib-devel libgssapi-devel libunwind automake autoconf libatomic unzip bzip2-devel libnet-devel python2 python2-devel jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel ; yum clean all
+RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-devel libcurl-devel doc-base gd wget bison libtool zlib-devel libgssapi-devel libunwind automake autoconf libatomic unzip bzip2-devel libnet-devel python2 python2-devel python-pip jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel libffi-devel libffi libgit2 libgit2-devel ; yum clean all
 
 # setup source folders
 RUN mkdir /root/.ssh
@@ -33,6 +33,8 @@ RUN touch /root/.ssh/id_rsa.pub && touch /root/.ssh/id_rsa
 RUN echo ${NGINX_CONF_GIT_SSH_PUB} << /root/.ssh/id_rsa.pub
 RUN echo ${NGINX_CONF_GIT_SSH_PVT} << /root/.ssh/id_rsa
 
+# prepare python2pip
+RUN pip install --upgrade pip ; pip install --upgrade setuptools
 # compile brotli + prerequisites
 RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli && ./autogen.sh && ./configure && make && make install ; rm -rf /usr/src/libbrotli 
 
@@ -96,12 +98,15 @@ RUN cd /usr/src/nginx-${NGINX_VERSION} && ./configure --with-cc-opt='-g -O2 -fst
 
 #RUN yum -y install nginx ; yum clean all
 ADD nginx.conf /etc/nginx/nginx.conf
+ADD GeoIPCity.dat /etc/nginx/GeoIPCity.dat
+ADD GeoIP.dat /etc/nginx/GeoIP.dat
+
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN curl https://git.centos.org/sources/httpd/c7/acf5cccf4afaecf3afeb18c50ae59fd5c6504910 \
-    | tar -xz -C /usr/share/nginx/html \
+    | tar -xz -C /etc/nginx/default \
     --strip-components=1
 RUN sed -i -e 's/Apache/nginx/g' -e '/apache_pb.gif/d' \ 
-    /usr/share/nginx/html/index.html
+    /etc/nginx/default/index.html
 
 EXPOSE 80
 EXPOSE 443
