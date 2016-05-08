@@ -39,7 +39,7 @@ RUN pip install --upgrade pip ; pip install --upgrade setuptools
 RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli && ./autogen.sh && ./configure && make && make install ; rm -rf /usr/src/libbrotli 
 
 # get openssl + pagespeed sources
-RUN cd /usr/src/ && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz && cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION:-1.0.2h}.tar.gz && tar -xvzf openssl-${OPENSSL_VERSION:-1.0.2h}.tar.gz && cd /usr/src/
+RUN cd /usr/src/ && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz && cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && tar -xvzf openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && cd /usr/src/
 # get nginx sources
 RUN cd /usr/src/ && wget http://nginx.org/download/nginx-${NGINX_VERSION:-1.9.12}.tar.gz && tar -xvzf nginx-${NGINX_VERSION:-1.9.12}.tar.gz 
 
@@ -69,7 +69,7 @@ RUN cd /usr/src/nginx-${NGINX_VERSION} && ./configure --with-cc-opt='-g -O2 -fst
 --with-openssl-opt=enable-tlsext \
 --with-http_v2_module \
 --with-http_ssl_module \
---with-openssl=/usr/src/openssl-${OPENSSL_VERSION} \
+--with-openssl=/usr/src/openssl-${OPENSSL_VERSION:-1.0.2g} \
 --with-file-aio \
 --with-http_realip_module \
 --with-http_addition_module \
@@ -86,10 +86,14 @@ RUN cd /usr/src/nginx-${NGINX_VERSION} && ./configure --with-cc-opt='-g -O2 -fst
 --add-dynamic-module=/usr/src/ngx_devel_kit \
 --add-dynamic-module=/usr/src/lua-nginx-module \
 --add-dynamic-module=/usr/src/headers-more-nginx-module \
---add-dynamic-module=/usr/src/ngx_pagespeed-release-${NPS_VERSION}-beta \
+--add-dynamic-module=/usr/src/ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta \
 --add-dynamic-module=/usr/src/lua-upstream-nginx-module \
 --add-dynamic-module=/usr/src/ngx_brotli \
 --add-dynamic-module=/usr/src/testcookie-nginx-module \
+--add-dynamic-module=/usr/src/ngx_http_dyups_module \
+--add-dynamic-module=/usr/src/ngx_dynamic_upstream \
+--add-dynamic-module=/usr/src/ngx_http_geoip2_module \
+--add-dynamic-module=/usr/src/lua-resty-limit-traffic \
 --add-module=/usr/src/ngx_http_accounting_module \
 --add-module=/usr/src/nginx-sticky-module-ng \
 --add-module=/usr/src/nginx-module-vts \
@@ -98,8 +102,6 @@ RUN cd /usr/src/nginx-${NGINX_VERSION} && ./configure --with-cc-opt='-g -O2 -fst
 
 #RUN yum -y install nginx ; yum clean all
 ADD nginx.conf /etc/nginx/nginx.conf
-ADD GeoIPCity.dat /etc/nginx/GeoIPCity.dat
-ADD GeoIP.dat /etc/nginx/GeoIP.dat
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN curl https://git.centos.org/sources/httpd/c7/acf5cccf4afaecf3afeb18c50ae59fd5c6504910 \
