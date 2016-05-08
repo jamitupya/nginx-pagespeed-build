@@ -31,8 +31,8 @@ RUN mkdir .ssh
 CMD touch .ssh/id_rsa.pub && touch .ssh/id_rsa 
 CMD echo ${NGINX_CONF_GIT_SSH_PUB} << .ssh/id_rsa.pub
 CMD echo ${NGINX_CONF_GIT_SSH_PVT} << .ssh/id_rsa
-RUN cat /root/.ssh/id_rsa.pub 
-RUN ls -la /root/.ssh/
+CMD cat /root/.ssh/id_rsa.pub 
+CMD ls -la /root/.ssh/
 
 # compile brotli + prerequisites
 RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli && ./autogen.sh && ./configure && make && make install ; rm -rf /usr/src/libbrotli 
