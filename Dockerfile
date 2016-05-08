@@ -17,7 +17,7 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm ; yum -y ins
 RUN yum -y install yum-utils ; yum-config-manager --enable remi-php70 ; yum -y update ; yum clean all
 
 # Update base configuration
-RUN firewall-cmd --zone=public --add-service=http --permanent ; firewall-cmd --zone=public --add-service=https --permanent
+RUN service firewalld stop
 
 
 RUN yum -y install nginx ; yum clean all
