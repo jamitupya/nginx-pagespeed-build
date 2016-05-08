@@ -20,12 +20,12 @@ ENV NGINX_CONF_GIT_SSH_PVT=0987654321
 # Update to latests builds
 RUN yum -y update; yum clean all
 RUN yum -y install epel-release tar ; yum clean all
-RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm ; yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm ; yum clean all
+RUN yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm ; yum clean all
 RUN yum -y install yum-utils ; yum-config-manager --enable remi,remi-php70 ; yum -y update ; yum clean all
 
 # Install compile tools + prerequisites
 RUN yum -y --enablerepo=remi,remi-php70 groupinstall 'Development Tools'
-RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-devel libcurl-devel doc-base gd wget bison libtool zlib-devel libgssapi libunwind automake libatomic unzip bzip2-devel libnet-devel python2 python2-devel jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel ; yum clean all
+RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-devel libcurl-devel doc-base gd wget bison libtool zlib-devel libgssapi-devel libunwind automake autoconf libatomic unzip bzip2-devel libnet-devel python2 python2-devel jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel ; yum clean all
 
 # setup source folders
 RUN mkdir .ssh
