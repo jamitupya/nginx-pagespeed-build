@@ -10,12 +10,13 @@ FROM centos:centos7
 #MAINTAINER The CentOS Project <cloud-ops@centos.org>
 MAINTAINER Jamitupya <jamitupya@gmail.com>
 
-ENV NPS_VERSION=1.10.33.6
+ENV NPS_VERSION=1.11.33.1
 ENV OPENSSL_VERSION=1.0.2h
 ENV OPENSSL_OLD=
-ENV NGINX_VERSION=1.9.12
+ENV NGINX_VERSION=1.10.0
 ENV NGINX_CONF_GIT_SSH_PUB=12341234
 ENV NGINX_CONF_GIT_SSH_PVT=0987654321
+ENV NGINX_CONF_GIT_REPO=https://bitbucket.org/gahnget/template
 
 # Update to latests builds
 RUN yum -y update; yum clean all
@@ -25,19 +26,21 @@ RUN yum -y install yum-utils ; yum-config-manager --enable remi,remi-php70 ; yum
 
 # Install compile tools + prerequisites
 RUN yum -y --enablerepo=remi,remi-php70 groupinstall 'Development Tools'
-RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-devel libcurl-devel doc-base gd wget bison libtool zlib-devel libgssapi-devel libunwind automake autoconf libatomic unzip bzip2-devel libnet-devel python2 python2-devel python-pip jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libmaxminddb libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel libffi-devel npm ; yum clean all
+RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-devel libcurl-devel doc-base gd wget bison libtool zlib-devel libgssapi-devel libunwind automake autoconf libatomic unzip bzip2-devel libnet-devel python2 python2-devel python-pip jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel ; yum clean all
 
 # setup source folders
 RUN mkdir /root/.ssh
 RUN touch /root/.ssh/id_rsa.pub && touch /root/.ssh/id_rsa 
-RUN echo ${NGINX_CONF_GIT_SSH_PUB} << /root/.ssh/id_rsa.pub
-RUN echo ${NGINX_CONF_GIT_SSH_PVT} << /root/.ssh/id_rsa
+RUN echo ${NGINX_CONF_GIT_SSH_PUB} >> /root/.ssh/id_rsa.pub
+RUN echo ${NGINX_CONF_GIT_SSH_PVT} >> /root/.ssh/id_rsa
 
-# prepare python2pip
-# RUN npm install gitfuse
+# setup libmaxminddb
+RUN cd /usr/src && git clone --recursive https://github.com/maxmind/libmaxminddb && cd libmaxminddb && ./bootstrap && ./configure && make ; make check ; make install
+RUN echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf
+RUN ldconfig ; rm -rf /usr/src/libmaxminddb
 
 # compile brotli + prerequisites
-# RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli && ./autogen.sh && ./configure && make && make install ; rm -rf /usr/src/libbrotli 
+# RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli ; ./autogen.sh && ./configure ; make && make install ; rm -rf /usr/src/libbrotli 
 
 # get openssl + pagespeed sources
 RUN cd /usr/src/ && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz && cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && tar -xvzf openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && cd /usr/src/
@@ -103,6 +106,9 @@ RUN cd /usr/src/nginx-${NGINX_VERSION} && ./configure --with-cc-opt='-g -O2 -fst
 
 #RUN yum -y install nginx ; yum clean all
 ADD nginx.conf /etc/nginx/nginx.conf
+
+# pull git repo for conf.d directory
+git clone ${}
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN curl https://git.centos.org/sources/httpd/c7/acf5cccf4afaecf3afeb18c50ae59fd5c6504910 \
