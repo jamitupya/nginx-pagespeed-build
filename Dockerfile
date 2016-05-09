@@ -60,7 +60,7 @@ RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
 
 # setup libmaxminddb
 RUN cd /usr/src && git clone --recursive https://github.com/maxmind/libmaxminddb && cd libmaxminddb && ./bootstrap && ./configure && make ; make check ; make install
-RUN echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf
+RUN echo /usr/local/lib >> /etc/ld.so.conf.d/local.conf
 RUN ldconfig ; rm -rf /usr/src/libmaxminddb
 
 # setup autoupdate of geoip databases using temp account details; can be overwritten by including an ADD of GeoIP.conf to the path /usr/local/etc/
@@ -133,11 +133,11 @@ RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && ./configure --with-cc-opt='-g 
 --add-dynamic-module=/usr/src/nginx-modules/ngx_dynamic_upstream \
 --add-dynamic-module=/usr/src/nginx-modules/ngx_http_geoip2_module \
 --add-dynamic-module=/usr/src/nginx-modules/lua-resty-limit-traffic \
---add-module=/usr/src/nginx-modules/ngx_http_accounting_module \
+--add-dynamic-module=/usr/src/nginx-modules/ngx_http_accounting_module \
 --add-module=/usr/src/nginx-modules/nginx-sticky-module-ng \
---add-module=/usr/src/nginx-modules/nginx-module-vts \
-&& make -j2 && make install
-RUN ls -la /etc/nginx/modules ; rm -rf /usr/src/nginx ; rm -rf /usr/src/nginx-modules ; rm -rf /usr/src/openssl-${OPENSSL_VERSION:-1.0.2g} ; rm -rf /usr/src/ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta
+--add-module=/usr/src/nginx-modules/nginx-module-vts
+RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && make -j2 && make install
+RUN cd /usr/src/ && ls -la /etc/nginx/modules ; rm -rf /usr/src/nginx-${NGINX_VERSION:-1.9.12} ; rm -rf /usr/src/nginx-modules ; rm -rf /usr/src/openssl-${OPENSSL_VERSION:-1.0.2g} ; rm -rf /usr/src/ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta
 
 #RUN yum -y install nginx ; yum clean all
 ADD nginx.conf /etc/nginx/nginx.conf
