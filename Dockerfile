@@ -57,7 +57,7 @@ RUN cd /usr/src/ && git clone https://github.com/maxmind/geoipupdate && cd geoip
 ADD GeoIP.conf /usr/local/etc/GeoIP.conf
 RUN /usr/local/bin/geoipupdate
 RUN ln -s /usr/local/share/GeoIP/${GEOIP_CITY_NAME:-GeoLiteCity.dat} /usr/local/share/GeoIP/geoip_city.dat ; ln -s /usr/local/share/GeoIP/${GEOIP_COUNTRY_NAME:-GeoLiteCountry.dat} /usr/local/share/GeoIP/geoip_country.dat
-RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb ; ln -s /usr/local/share/GeoIP/${GEOIP2_COUNTRY_NAME:-GeoLite2-Country.mmdb} /usr/local/share/GeoIP/geoip2_country.mmdb
+RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME} /usr/local/share/GeoIP/geoip2_city.mmdb ; ln -s /usr/local/share/GeoIP/${GEOIP2_COUNTRY_NAME} /usr/local/share/GeoIP/geoip2_country.mmdb
 
 # compile brotli + prerequisites
 # RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli ; ./autogen.sh && ./configure ; make && make install ; rm -rf /usr/src/libbrotli 
