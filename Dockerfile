@@ -17,6 +17,10 @@ ENV NGINX_VERSION=1.10.0
 ENV NGINX_CONF_GIT_SSH_PUB=12341234
 ENV NGINX_CONF_GIT_SSH_PVT=0987654321
 ENV NGINX_CONF_GIT_REPO=https://bitbucket.org/gahnget/template
+ENV GEOIP_CITY_NAME=GeoLiteCityv6.dat
+ENV GEOIP_COUNTRY_NAME=GeoLiteCountry.dat
+ENV GEOIP2_CITY_NAME=GeoLite2-City.mmdb
+ENV GEOIP2_COUNTRY_NAME=GeoLite2-Country.mmdb
 
 # Update to latests builds
 RUN yum -y update; yum clean all
@@ -39,6 +43,11 @@ RUN cd /usr/src && git clone --recursive https://github.com/maxmind/libmaxminddb
 RUN echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf
 RUN ldconfig ; rm -rf /usr/src/libmaxminddb
 
+# setup autoupdate of geoip databases using temp account details; can be overwritten by including an ADD of GeoIP.conf to the path /usr/local/etc/
+RUN cd /usr/src/ && git clone https://github.com/maxmind/geoipupdate && cd geoipupdate && ./bootstrap && ./configure && make && make install && mkdir /usr/local/share/GeoIP
+ADD GeoIP.conf /usr/local/etc/GeoIP.conf
+RUN /usr/local/bin/geoipupdate && cd /usr/local/share/GeoIP && ln -s geoip_city.dat ${GEOIP_CITY_NAME:-GeoLiteCity.dat} && ln -s geoip_country.dat ${GEOIP_COUNTRY_NAME:-GeoLiteCountry.dat} && ln -s geoip2_city.mmdb ${GEOIP3_CITY_NAME:-GeoLite2-City.mmdb} && ln -s geoip2_city.mmdb ${GEOIP2_COUNTRY_NAME:-GeoLite2-City.mmdb} 
+
 # compile brotli + prerequisites
 # RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli ; ./autogen.sh && ./configure ; make && make install ; rm -rf /usr/src/libbrotli 
 
@@ -51,6 +60,8 @@ RUN cd /usr/src/ && wget http://nginx.org/download/nginx-${NGINX_VERSION:-1.9.12
 RUN cd /usr/src/ && git clone https://github.com/simpl/ngx_devel_kit && git clone https://github.com/kyprizel/testcookie-nginx-module && git clone https://github.com/Lax/ngx_http_accounting_module.git && git clone https://github.com/openresty/headers-more-nginx-module && git clone https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng && git clone https://github.com/openresty/lua-nginx-module && git clone https://github.com/openresty/lua-upstream-nginx-module && git clone https://github.com/openresty/lua-resty-limit-traffic && git clone https://github.com/vozlt/nginx-module-vts && git clone https://github.com/google/ngx_brotli && git clone https://github.com/yzprofile/ngx_http_dyups_module && git clone https://github.com/cubicdaiya/ngx_dynamic_upstream && git clone https://github.com/leev/ngx_http_geoip2_module
 RUN ls -la /usr/src 
 
+# get maxmindlite2 databases
+RUN cd /tmp/ && wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz && wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz && 
 # compile nginx prerequisites
 RUN export LUAJIT_LIB=/usr/local/lib/libluajit-5.1.so && export LUAJIT_INC=/usr/local/include/luajit-2.0 && LUAJIT_LIB_PATH=/usr/local/lib/libluajit-5.1.so && LUAJIT_INC_PATH=/usr/local/include/luajit-2.0/
 RUN cd /usr/src/nginx-${NGINX_VERSION} && ./configure --with-cc-opt='-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2' \
