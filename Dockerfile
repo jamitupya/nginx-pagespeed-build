@@ -3,6 +3,8 @@
 # Updates to come: 
 # + make the compile's into a series of scripts and not just in the dockerfile
 # + remove legacy unused dependencies via yum
+# + add /logs/ documentation for logrotate in image onto local host filesystem
+# + add /ssl/ documentation for including a volume that hosts your SSL Certs
 #
 # "ported" by Adam Miller <maxamillion@fedoraproject.org> from
 #   https://github.com/fedora-cloud/Fedora-Dockerfiles
@@ -60,6 +62,9 @@ RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/lo
 # compile brotli + prerequisites
 # RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli ; ./autogen.sh && ./configure ; make && make install ; rm -rf /usr/src/libbrotli 
 
+# compile pagespeed prerequisites
+RUN cd /usr/src && sudo wget https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.4.tar.gz && tar -zxvf gperftools-2.4.tar.gz && cd gperftools-2.4 ; ./configure --enable-frame-pointers && make && make install && ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools-2.4
+
 # get openssl + pagespeed sources
 RUN cd /usr/src/ && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz && cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && tar -xvzf openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && cd /usr/src/
 
@@ -72,15 +77,15 @@ RUN ls -la /usr/src
 
 # compile nginx prerequisites
 RUN export LUAJIT_LIB=/usr/local/lib/libluajit-5.1.so && export LUAJIT_INC=/usr/local/include/luajit-2.0 && LUAJIT_LIB_PATH=/usr/local/lib/libluajit-5.1.so && LUAJIT_INC_PATH=/usr/local/include/luajit-2.0/
-RUN cd /usr/src/nginx-${NGINX_VERSION} && ./configure --with-cc-opt='-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2' \
---with-ld-opt='-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-rpath,${LUAJIT_LIB_PATH},/usr/local/lib' \
+RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && ./configure --with-cc-opt='-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2' \
+--with-ld-opt='-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-rpath,/usr/local/include,/usr/local/lib' \
 --sbin-path=/usr/sbin/nginx \
 --user=nginx \
 --group=nginx \
 --prefix=/etc/nginx \
 --conf-path=/etc/nginx/nginx.conf \
---error-log-path=/var/log/nginx/error.log \
---http-log-path=/var/log/nginx/access.log \
+--error-log-path=/log/nginx/error.log \
+--http-log-path=/log/nginx/access.log \
 --http-client-body-temp-path=/var/lib/nginx/tmp/client_body \
 --http-proxy-temp-path=/var/lib/nginx/tmp/proxy \
 --http-fastcgi-temp-path=/var/lib/nginx/tmp/fastcgi \
@@ -127,7 +132,11 @@ RUN cd /usr/src/nginx-${NGINX_VERSION} && ./configure --with-cc-opt='-g -O2 -fst
 ADD nginx.conf /etc/nginx/nginx.conf
 
 # pull git repo for conf.d directory
-git clone ${NGINX_CONF_GIT_REPO} /etc/nginx/conf.d
+RUN git clone ${NGINX_CONF_GIT_REPO} /etc/nginx/conf.d
+
+# setup final paths and init.d for nginx
+RUN mkdir /var/lib/nginx && mkdir /var/lib/nginx/tmp && mkdir /tmp/nginx_cache && id -u nginx &>/dev/null || useradd -s /usr/sbin/nologin -r nginx && chown -R nginx:nginx /etc/nginx && chown -R nginx:nginx /var/lib/nginx && chown -R nginx:nginx /var/log/nginx
+RUN wget -O /etc/init.d/nginx https://gist.github.com/sairam/5892520/raw/b8195a71e944d46271c8a49f2717f70bcd04bf1a/etc-init.d-nginx && chmod +x /etc/init.d/nginx && chkconfig --add nginx && chkconfig --level 345 nginx on
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN curl https://git.centos.org/sources/httpd/c7/acf5cccf4afaecf3afeb18c50ae59fd5c6504910 \
