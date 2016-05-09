@@ -53,15 +53,15 @@ RUN mkdir /root/.ssh
 RUN touch /root/.ssh/id_rsa.pub && touch /root/.ssh/id_rsa 
 RUN echo ${NGINX_CONF_GIT_SSH_PUB} | base64 --decode >> /root/.ssh/id_rsa.pub && chmod 700 /root/.ssh/id_rsa.pub
 RUN echo ${NGINX_CONF_GIT_SSH_PVT} | base64 --decode >> /root/.ssh/id_rsa && chmod 700 /root/.ssh/id_rsa
-RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config && ssh-add ~/.ssh/id_rsa && ssh-add -l && ssh -T git@bitbucket.com
+RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config ; ssh-agent ; ssh-add ~/.ssh/id_rsa ; ssh-add -l ; ssh -T git@bitbucket.com
 
 # setup libmaxminddb
-RUN cd /usr/src && git clone --recursive https://github.com/maxmind/libmaxminddb && cd libmaxminddb && ./bootstrap && ./configure && make ; make check ; make install
+RUN cd /usr/src && git clone --recursive https://github.com/maxmind/libmaxminddb && cd libmaxminddb && ./bootstrap ; ./configure ; make ; make check ; make install
 RUN echo /usr/local/lib >> /etc/ld.so.conf.d/local.conf
 RUN ldconfig ; rm -rf /usr/src/libmaxminddb
 
 # setup autoupdate of geoip databases using temp account details; can be overwritten by including an ADD of GeoIP.conf to the path /usr/local/etc/
-RUN cd /usr/src/ && git clone https://github.com/maxmind/geoipupdate && cd geoipupdate && ./bootstrap && ./configure && make && make install && mkdir /usr/local/share/GeoIP
+RUN cd /usr/src/ && git clone https://github.com/maxmind/geoipupdate && cd geoipupdate && ./bootstrap ; ./configure ; make ; make install && mkdir /usr/local/share/GeoIP
 ADD GeoIP.conf /usr/local/etc/GeoIP.conf
 RUN /usr/local/bin/geoipupdate
 RUN ln -s /usr/local/share/GeoIP/${GEOIP_CITY_NAME:-GeoLiteCity.dat} /usr/local/share/GeoIP/geoip_city.dat ; ln -s /usr/local/share/GeoIP/${GEOIP_COUNTRY_NAME:-GeoLiteCountry.dat} /usr/local/share/GeoIP/geoip_country.dat
