@@ -49,12 +49,12 @@ RUN yum -y --enablerepo=remi,remi-php70 groupinstall 'Development Tools'
 RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-devel libcurl-devel gcc gcc-c++ doc-base gd wget bison libtool zlib-devel libgssapi-devel libunwind automake autoconf libatomic unzip bzip2-devel libnet-devel python2 python2-devel python-pip jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel ; yum clean all
 
 # setup source ssh private and public keys
-RUN mkdir /root/.ssh
-RUN touch /root/.ssh/id_rsa.pub && touch /root/.ssh/id_rsa 
-RUN echo ${NGINX_CONF_GIT_SSH_PUB} | base64 --decode >> /root/.ssh/id_rsa.pub && chmod 700 /root/.ssh/id_rsa.pub
-RUN echo ${NGINX_CONF_GIT_SSH_PVT} | base64 --decode >> /root/.ssh/id_rsa && chmod 700 /root/.ssh/id_rsa
-RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
-RUN ssh-agent
+RUN mkdir ~/.ssh
+RUN touch ~/.ssh/id_rsa.pub && touch ~/.ssh/id_rsa 
+RUN echo ${NGINX_CONF_GIT_SSH_PUB} | base64 --decode >> ~/.ssh/id_rsa.pub && chmod 700 ~/.ssh/id_rsa.pub
+RUN echo ${NGINX_CONF_GIT_SSH_PVT} | base64 --decode >> ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
+RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+RUN ssh-agent /bin/bash
 RUN ssh-add ~/.ssh/id_rsa ; ssh-add -l
 RUN ssh -T git@bitbucket.com
 
