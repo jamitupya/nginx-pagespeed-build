@@ -52,7 +52,7 @@ RUN ldconfig ; rm -rf /usr/src/libmaxminddb
 # setup autoupdate of geoip databases using temp account details; can be overwritten by including an ADD of GeoIP.conf to the path /usr/local/etc/
 RUN cd /usr/src/ && git clone https://github.com/maxmind/geoipupdate && cd geoipupdate && ./bootstrap && ./configure && make && make install && mkdir /usr/local/share/GeoIP
 ADD GeoIP.conf /usr/local/etc/GeoIP.conf
-RUN /usr/local/bin/geoipupdate && cd /usr/local/share/GeoIP && ln -s geoip_city.dat ${GEOIP_CITY_NAME:-GeoLiteCity.dat} && ln -s geoip_country.dat ${GEOIP_COUNTRY_NAME:-GeoLiteCountry.dat} && ln -s geoip2_city.mmdb ${GEOIP3_CITY_NAME:-GeoLite2-City.mmdb} && ln -s geoip2_city.mmdb ${GEOIP2_COUNTRY_NAME:-GeoLite2-City.mmdb} 
+RUN /usr/local/bin/geoipupdate && cd /usr/local/share/GeoIP && ln -s geoip_city.dat ${GEOIP_CITY_NAME:-GeoLiteCity.dat} && ln -s geoip_country.dat ${GEOIP_COUNTRY_NAME:-GeoLiteCountry.dat} && ln -s geoip2_city.mmdb ${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} && ln -s geoip2_city.mmdb ${GEOIP2_COUNTRY_NAME:-GeoLite2-City.mmdb} 
 
 # compile brotli + prerequisites
 # RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli ; ./autogen.sh && ./configure ; make && make install ; rm -rf /usr/src/libbrotli 
