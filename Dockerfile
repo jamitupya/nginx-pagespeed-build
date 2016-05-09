@@ -48,9 +48,6 @@ RUN yum -y install yum-utils ; yum-config-manager --save --setopt=epel.skip_if_u
 RUN yum -y --enablerepo=remi,remi-php70 groupinstall 'Development Tools'
 RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-devel libcurl-devel gcc gcc-c++ doc-base gd wget bison libtool zlib-devel libgssapi-devel libunwind automake autoconf libatomic unzip bzip2-devel libnet-devel python2 python2-devel python-pip jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel ; yum clean all
 
-# print some usefull information
-RUN ip addr
-
 # setup source ssh private and public keys
 RUN mkdir /root/.ssh
 RUN touch /root/.ssh/id_rsa.pub && touch /root/.ssh/id_rsa 
