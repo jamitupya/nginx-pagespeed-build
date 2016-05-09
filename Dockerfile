@@ -19,6 +19,7 @@ ENV OPENSSL_VERSION=1.0.2h
 ENV OPENSSL_OLD=
 ENV NGINX_VERSION=1.10.0
 ENV NGINX_CONF_GIT_REPO=https://bitbucket.org/gahnget/template
+ENV NGINX_CONF_GIT_BRANCH=master
 ENV GEOIP_CITY_NAME=GeoLiteCityv6.dat
 ENV GEOIP_COUNTRY_NAME=GeoLiteCountry.dat
 ENV GEOIP2_CITY_NAME=GeoLite2-City.mmdb
@@ -52,9 +53,9 @@ RUN ldconfig ; rm -rf /usr/src/libmaxminddb
 # setup autoupdate of geoip databases using temp account details; can be overwritten by including an ADD of GeoIP.conf to the path /usr/local/etc/
 RUN cd /usr/src/ && git clone https://github.com/maxmind/geoipupdate && cd geoipupdate && ./bootstrap && ./configure && make && make install && mkdir /usr/local/share/GeoIP
 ADD GeoIP.conf /usr/local/etc/GeoIP.conf
-RUN /usr/local/bin/geoipupdate 
-RUN ln -s /usr/local/share/GeoIP/${GEOIP_CITY_NAME:-GeoLiteCity.dat} /usr/local/share/GeoIP/geoip_city.dat  && ln -s /usr/local/share/GeoIP/${GEOIP_COUNTRY_NAME:-GeoLiteCountry.dat} /usr/local/share/GeoIP/geoip_country.dat
-RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb && ln -s /usr/local/share/GeoIP/${GEOIP2_COUNTRY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb
+RUN /usr/local/bin/geoipupdate
+RUN ln -s /usr/local/share/GeoIP/${GEOIP_CITY_NAME:-GeoLiteCity.dat} /usr/local/share/GeoIP/geoip_city.dat ; ln -s /usr/local/share/GeoIP/${GEOIP_COUNTRY_NAME:-GeoLiteCountry.dat} /usr/local/share/GeoIP/geoip_country.dat
+RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb ; ln -s /usr/local/share/GeoIP/${GEOIP2_COUNTRY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb
 
 # compile brotli + prerequisites
 # RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli ; ./autogen.sh && ./configure ; make && make install ; rm -rf /usr/src/libbrotli 
@@ -125,7 +126,7 @@ RUN cd /usr/src/nginx-${NGINX_VERSION} && ./configure --with-cc-opt='-g -O2 -fst
 ADD nginx.conf /etc/nginx/nginx.conf
 
 # pull git repo for conf.d directory
-git clone ${}
+git clone ${NGINX_CONF_GIT_REPO} /etc/nginx/conf.d
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN curl https://git.centos.org/sources/httpd/c7/acf5cccf4afaecf3afeb18c50ae59fd5c6504910 \
