@@ -72,7 +72,7 @@ RUN cd /tmp/ && wget https://geolite.maxmind.com/download/geoip/database/GeoLite
 # compile nginx prerequisites
 RUN export LUAJIT_LIB=/usr/local/lib/libluajit-5.1.so && export LUAJIT_INC=/usr/local/include/luajit-2.0 && LUAJIT_LIB_PATH=/usr/local/lib/libluajit-5.1.so && LUAJIT_INC_PATH=/usr/local/include/luajit-2.0/
 RUN cd /usr/src/nginx-${NGINX_VERSION} && ./configure --with-cc-opt='-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2' \
---with-ld-opt='-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-rpath,${LUAJIT_LIB_PATH}' \
+--with-ld-opt='-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-rpath,${LUAJIT_LIB_PATH},/usr/local/lib' \
 --sbin-path=/usr/sbin/nginx \
 --user=nginx \
 --group=nginx \
