@@ -57,7 +57,7 @@ RUN cd /usr/src/ && git clone https://github.com/maxmind/geoipupdate && cd geoip
 ADD GeoIP.conf /usr/local/etc/GeoIP.conf
 RUN /usr/local/bin/geoipupdate
 RUN ln -s /usr/local/share/GeoIP/${GEOIP_CITY_NAME:-GeoLiteCity.dat} /usr/local/share/GeoIP/geoip_city.dat ; ln -s /usr/local/share/GeoIP/${GEOIP_COUNTRY_NAME:-GeoLiteCountry.dat} /usr/local/share/GeoIP/geoip_country.dat
-RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb ; ln -s /usr/local/share/GeoIP/${GEOIP2_COUNTRY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb
+RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb ; ln -s /usr/local/share/GeoIP/${GEOIP2_COUNTRY_NAME:-GeoLite2-Country.mmdb} /usr/local/share/GeoIP/geoip2_country.mmdb
 
 # compile brotli + prerequisites
 # RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli ; ./autogen.sh && ./configure ; make && make install ; rm -rf /usr/src/libbrotli 
@@ -65,15 +65,15 @@ RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/lo
 # compile pagespeed prerequisites
 RUN cd /usr/src && sudo wget https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.4.tar.gz && tar -zxvf gperftools-2.4.tar.gz && cd gperftools-2.4 ; ./configure --enable-frame-pointers && make && make install && ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools-2.4
 
-# get openssl + pagespeed sources
+# get openssl+pagespeed sources
 RUN cd /usr/src/ && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz && cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && tar -xvzf openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && cd /usr/src/
 
 # get nginx sources
 RUN cd /usr/src/ && wget http://nginx.org/download/nginx-${NGINX_VERSION:-1.9.12}.tar.gz && tar -xvzf nginx-${NGINX_VERSION:-1.9.12}.tar.gz 
 
 # get nginx module prerequisites
-RUN cd /usr/src/ && git clone https://github.com/simpl/ngx_devel_kit && git clone https://github.com/kyprizel/testcookie-nginx-module && git clone https://github.com/Lax/ngx_http_accounting_module.git && git clone https://github.com/openresty/headers-more-nginx-module && git clone https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng && git clone https://github.com/openresty/lua-nginx-module && git clone https://github.com/openresty/lua-upstream-nginx-module && git clone https://github.com/openresty/lua-resty-limit-traffic && git clone https://github.com/vozlt/nginx-module-vts && git clone https://github.com/google/ngx_brotli && git clone https://github.com/yzprofile/ngx_http_dyups_module && git clone https://github.com/cubicdaiya/ngx_dynamic_upstream && git clone https://github.com/leev/ngx_http_geoip2_module
-RUN ls -la /usr/src 
+RUN mkdir /usr/src/nginx-modules/ && cd /usr/src/nginx-modules/ && git clone https://github.com/simpl/ngx_devel_kit && git clone https://github.com/kyprizel/testcookie-nginx-module && git clone https://github.com/Lax/ngx_http_accounting_module.git && git clone https://github.com/openresty/headers-more-nginx-module && git clone https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng && git clone https://github.com/openresty/lua-nginx-module && git clone https://github.com/openresty/lua-upstream-nginx-module && git clone https://github.com/openresty/lua-resty-limit-traffic && git clone https://github.com/vozlt/nginx-module-vts && git clone https://github.com/google/ngx_brotli && git clone https://github.com/yzprofile/ngx_http_dyups_module && git clone https://github.com/cubicdaiya/ngx_dynamic_upstream && git clone https://github.com/leev/ngx_http_geoip2_module
+RUN ls -la /usr/src/nginx-modules/
 
 # compile nginx prerequisites
 RUN export LUAJIT_LIB=/usr/local/lib/libluajit-5.1.so && export LUAJIT_INC=/usr/local/include/luajit-2.0 && LUAJIT_LIB_PATH=/usr/local/lib/libluajit-5.1.so && LUAJIT_INC_PATH=/usr/local/include/luajit-2.0/
@@ -86,9 +86,9 @@ RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && ./configure --with-cc-opt='-g 
 --conf-path=/etc/nginx/nginx.conf \
 --error-log-path=/log/nginx/error.log \
 --http-log-path=/log/nginx/access.log \
---http-client-body-temp-path=/var/lib/nginx/tmp/client_body \
---http-proxy-temp-path=/var/lib/nginx/tmp/proxy \
---http-fastcgi-temp-path=/var/lib/nginx/tmp/fastcgi \
+--http-client-body-temp-path=/tmp/client_body \
+--http-proxy-temp-path=/tmp/proxy \
+--http-fastcgi-temp-path=/tmp/fastcgi \
 --pid-path=/var/run/nginx.pid \
 --lock-path=/var/lock/subsys/nginx \
 --with-http_ssl_module \
@@ -111,22 +111,22 @@ RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && ./configure --with-cc-opt='-g 
 --with-http_image_filter_module=dynamic \
 --with-mail=dynamic \
 --with-stream=dynamic \
---add-dynamic-module=/usr/src/ngx_devel_kit \
---add-dynamic-module=/usr/src/lua-nginx-module \
---add-dynamic-module=/usr/src/headers-more-nginx-module \
---add-dynamic-module=/usr/src/ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta \
---add-dynamic-module=/usr/src/lua-upstream-nginx-module \
-#--add-dynamic-module=/usr/src/ngx_brotli \
---add-dynamic-module=/usr/src/testcookie-nginx-module \
---add-dynamic-module=/usr/src/ngx_http_dyups_module \
---add-dynamic-module=/usr/src/ngx_dynamic_upstream \
---add-dynamic-module=/usr/src/ngx_http_geoip2_module \
---add-dynamic-module=/usr/src/lua-resty-limit-traffic \
---add-module=/usr/src/ngx_http_accounting_module \
---add-module=/usr/src/nginx-sticky-module-ng \
---add-module=/usr/src/nginx-module-vts \
+--add-dynamic-module=/usr/src/nginx-modules/ngx_devel_kit \
+--add-dynamic-module=/usr/src/nginx-modules/lua-nginx-module \
+--add-dynamic-module=/usr/src/nginx-modules/headers-more-nginx-module \
+--add-dynamic-module=/usr/src/nginx-modules/ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta \
+--add-dynamic-module=/usr/src/nginx-modules/lua-upstream-nginx-module \
+#--add-dynamic-module=/usr/src/nginx-modules/ngx_brotli \
+--add-dynamic-module=/usr/src/nginx-modules/testcookie-nginx-module \
+--add-dynamic-module=/usr/src/nginx-modules/ngx_http_dyups_module \
+--add-dynamic-module=/usr/src/nginx-modules/ngx_dynamic_upstream \
+--add-dynamic-module=/usr/src/nginx-modules/ngx_http_geoip2_module \
+--add-dynamic-module=/usr/src/nginx-modules/lua-resty-limit-traffic \
+--add-module=/usr/src/nginx-modules/ngx_http_accounting_module \
+--add-module=/usr/src/nginx-modules/nginx-sticky-module-ng \
+--add-module=/usr/src/nginx-modules/nginx-module-vts \
 && make -j2 && make install
-
+RUN ls -la /etc/nginx/modules ; rm -rf /usr/src/nginx ; rm -rf /usr/src/nginx-modules ; rm -rf /usr/src/openssl-${OPENSSL_VERSION:-1.0.2g} ; rm -rf /usr/src/ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta
 
 #RUN yum -y install nginx ; yum clean all
 ADD nginx.conf /etc/nginx/nginx.conf
@@ -135,7 +135,7 @@ ADD nginx.conf /etc/nginx/nginx.conf
 RUN git clone ${NGINX_CONF_GIT_REPO} /etc/nginx/conf.d
 
 # setup final paths and init.d for nginx
-RUN mkdir /var/lib/nginx && mkdir /var/lib/nginx/tmp && mkdir /tmp/nginx_cache && id -u nginx &>/dev/null || useradd -s /usr/sbin/nologin -r nginx && chown -R nginx:nginx /etc/nginx && chown -R nginx:nginx /var/lib/nginx && chown -R nginx:nginx /var/log/nginx
+RUN mkdir /var/lib/nginx && mkdir /log/ && mkdir /var/lib/nginx/tmp && mkdir /tmp/nginx_cache && id -u nginx &>/dev/null || useradd -s /usr/sbin/nologin -r nginx && chown -R nginx:nginx /etc/nginx && chown -R nginx:nginx /var/lib/nginx && chown -R nginx:nginx /var/log/nginx
 RUN wget -O /etc/init.d/nginx https://gist.github.com/sairam/5892520/raw/b8195a71e944d46271c8a49f2717f70bcd04bf1a/etc-init.d-nginx && chmod +x /etc/init.d/nginx && chkconfig --add nginx && chkconfig --level 345 nginx on
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
