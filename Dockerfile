@@ -58,7 +58,7 @@ RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /etc/ssh/ssh_config
 #RUN ssh-agent /bin/bash
 #RUN ssh-add ~/.ssh/id_rsa ; ssh-add -l
 RUN echo "    IdentityFile ~/.ssh/id_rsa" >> /etc/ssh/ssh_config
-RUN ssh -T git@bitbucket.com
+#RUN ssh -T git@bitbucket.com
 
 # setup libmaxminddb
 RUN cd /usr/src && git clone --recursive https://github.com/maxmind/libmaxminddb && cd libmaxminddb && ./bootstrap ; ./configure ; make ; make check ; make install
