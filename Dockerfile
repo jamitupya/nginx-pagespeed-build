@@ -53,7 +53,10 @@ RUN mkdir /root/.ssh
 RUN touch /root/.ssh/id_rsa.pub && touch /root/.ssh/id_rsa 
 RUN echo ${NGINX_CONF_GIT_SSH_PUB} | base64 --decode >> /root/.ssh/id_rsa.pub && chmod 700 /root/.ssh/id_rsa.pub
 RUN echo ${NGINX_CONF_GIT_SSH_PVT} | base64 --decode >> /root/.ssh/id_rsa && chmod 700 /root/.ssh/id_rsa
-RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config ; ssh-agent ; ssh-add ~/.ssh/id_rsa ; ssh-add -l ; ssh -T git@bitbucket.com
+RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
+RUN ssh-agent
+RUN ssh-add ~/.ssh/id_rsa ; ssh-add -l
+RUN ssh -T git@bitbucket.com
 
 # setup libmaxminddb
 RUN cd /usr/src && git clone --recursive https://github.com/maxmind/libmaxminddb && cd libmaxminddb && ./bootstrap ; ./configure ; make ; make check ; make install
