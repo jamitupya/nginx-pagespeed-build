@@ -1,5 +1,9 @@
-# "adopted" by jamitupya@gmail.com for use in a reverse proxy template
-# 
+# "adopted" by jamitupya@gmail.com for use in a reverse proxy template; 
+# and yes, it is cobbled together in my 2nd attempt at docker so comments welcome
+# Updates to come: 
+# + make the compile's into a series of scripts and not just in the dockerfile
+# + remove legacy unused dependencies via yum
+#
 # "ported" by Adam Miller <maxamillion@fedoraproject.org> from
 #   https://github.com/fedora-cloud/Fedora-Dockerfiles
 #
@@ -14,13 +18,15 @@ ENV NPS_VERSION=1.11.33.1
 ENV OPENSSL_VERSION=1.0.2h
 ENV OPENSSL_OLD=
 ENV NGINX_VERSION=1.10.0
-ENV NGINX_CONF_GIT_SSH_PUB=12341234
-ENV NGINX_CONF_GIT_SSH_PVT=0987654321
 ENV NGINX_CONF_GIT_REPO=https://bitbucket.org/gahnget/template
 ENV GEOIP_CITY_NAME=GeoLiteCityv6.dat
 ENV GEOIP_COUNTRY_NAME=GeoLiteCountry.dat
 ENV GEOIP2_CITY_NAME=GeoLite2-City.mmdb
 ENV GEOIP2_COUNTRY_NAME=GeoLite2-Country.mmdb
+
+# UPDATE THESE TO YOUR OWN. DO NOT USE THESE, both must be in base64 format
+ENV NGINX_CONF_GIT_SSH_PUB=c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCQVFEcFdYdVFNRC8zWUd2L05ja2dvQXdOT2JBdGdyMmFaTE5CWGtYMkNzZm1HblowRURLRXhiMWNQWnF0dE00TzBHZ3RDd3hTeU5TK3VrVndUdG9aTmRXMnl6M3A1a0VZa01PWTBBeWJqODJNeVRSZ1FpMTk3Rkg5TDdwZTZLQVFiOUcyQm5UZkxIQmg3Y29URnpzaDdrdlJObW9ESmhTUkZXVGNrZjlKU0FWSU0zRDZUZmJOSG9FUjhod20vSWs3bFlsRlFxNThwcE5aMTAwQ0hYQklkQS9zbnVPcEJpdmh0amV4Q0paRHJ5NTVZRlFkc2lQTkFVT0YxbStDN3EzYUFvNjNQNTVVa2NJSEZ3V05XTmNUbTc5SGg3TFNiaEtXY3dkdUlOYjA3NHFjbmpmRmV5Um81U2MvNjhDWTlwS1dLRmVaMG95MUN6RS9uVU5NUG5HSmxScXogcm9vdEBjZW50b3MtYnVpbGQtZG9ja2VyLmVwaWNpZ3VhbmEuY29t
+ENV NGINX_CONF_GIT_SSH_PVT=LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQ0KTUlJRXBRSUJBQUtDQVFFQTZWbDdrREEvOTJCci96WEpJS0FNRFRtd0xZSzltbVN6UVY1Rjlnckg1aHAyZEJBeQ0KaE1XOVhEMmFyYlRPRHRCb0xRc01Vc2pVdnJwRmNFN2FHVFhWdHNzOTZlWkJHSkREbU5BTW00L05qTWswWUVJdA0KZmV4Ui9TKzZYdWlnRUcvUnRnWjAzeXh3WWUzS0V4YzdJZTVMMFRacUF5WVVrUlZrM0pIL1NVZ0ZTRE53K2szMg0KelI2QkVmSWNKdnlKTzVXSlJVS3VmS2FUV2RkTkFoMXdTSFFQN0o3anFRWXI0Ylkzc1FpV1E2OHVlV0JVSGJJag0KelFGRGhkWnZndTZ0MmdLT3R6K2VWSkhDQnhjRmpWalhFNXUvUjRleTBtNFNsbk1IYmlEVzlPK0tuSjQzeFhzaw0KYU9VblArdkFtUGFTbGloWG1kS010UXN4UDUxRFRENXhpWlVhc3dJREFRQUJBb0lCQUY5ZXZCcU5MY2VMOS9laA0KWXVkYm9qRlJqNGk2TTRYRGZHUE9CT2Z2TmczOGFNYzh5M2pxWEY4enFtRXVVVDFLdmhrU3QrR3B4UkdDamRpOQ0KMFhPV1JoZGtiNVNHRDdyYmg2V1ArbWNsMmN1ZGZET1BPSXFMcUdMRE8vZUlPY3NkK0diZHNxeDN2Q0s2RGVuSg0KaDloeFRUbGZkT3AraU05WElCYnA4SjFodXc3cmQ0Z1crdkdDNjltaStvRzZZWVFETElKREg4UnZqdlF2NDN4dw0KRzVTbXM4Z2ZKYWNzUXhRZTJIc2kwT0FReHF4dWlpVERLd25EYTI2SklCTUp0eTFtaEpvUzNkVDl1dnNDTVpmNA0KT2NXR0hQbG4yclVhMTAxbXZYQXcrVFpIWWowcnZvalVwYTJKZS9WWngzMVlvM2M0Lyt2SHRLYXRyS3ZpMVdrRw0KQzg0djkya0NnWUVBOXcxc3NWWmErUCt4YVhuSFlvSTlmZkxoZ2pYbmQzQ0NxY3lQaytITEl0YzNoWlZodkFlZg0KWFBIZm9PZGd1OTUzbVF2bUNEaG1tckxhRXl6dGE4ZGJOanE1eVhkM0VVVWsxSjJSbFZ2TkF1cHZxdXp3Rlc0UQ0KY0l3UlZMYTJEbWlzeExuNHpOZG9NNzhzK1BQOFJqTTdwY1J2RDhYdnNwUUVsQmVwVkE1ekQ4MENnWUVBOGMwQw0KbEVmWXphSzZFL1RmR2hxdWJpY1Q0V1dZWmFhU2hxcklKd25jejJQT0s4cUw5U0Q2aDVPbXFPUTFpSlhva0JFcA0KM0NxaWdSOVRrOUR5T05Ic1RicDlYVWZQTWdIaWVRUzJFS2xLYW5ETEw4OHdaWUZUMzByQUhwekROSDhma1V4OQ0KVE9RR241NFc2K1VxVHRXaFhFSExXeFBPTUk5eHlxOVJFUmVWVkg4Q2dZRUFrdUNkVlZWRTRyS0psRzY5Tm5pOQ0KL0VwUS9ldjBRQk5ZNjRCZGdBc0dqU0VzdGpPWWxvUmxuNG1CYlpVQjhzK1JoU0VJMHF4TmUvMkhIMDFmbmVzNA0KOUNXMzNPbzBsTVRwMzZvS0txVVlYbnBvaDFNMGJWa3hWdWcvU1lFUy9jQUhyekh0bEVNZ2hWdE1ibm9INnVoOA0KdHRIeFFZeHBORjlCMVpXM3F1eW9SYVVDZ1lFQXErNmlUdDFuZzVDWnoyYm0zS0RzTnRjQ2c5ckJxa1h2R21LRg0KUDN6N3pWdWlWZkVINDUwM2h2K3VHWmxybDF0QXFuQUoyOHRWRVlzODJuWlFSYWErNStZYkRpRHBheDE3ODZFdA0KOUZycjF4T3M1cW5rTjhqbDRuZzhjNGYwSlhmZThtbjVEcHQxT2pvbkFrVkkrQlZmVDBKWlhzR09jMmtMK0pzQQ0KZ2E3TE4vRUNnWUVBeGxOaDBCVURLZ2huV2JUMk5uTDgzRFRMT3NNeGF6aHZXSTljdVI2WUhZT1dPcTBXNWFRdA0KTVFWMXl5WFlJR3dqZWtCbW9SbTl5NWhZSUxGdnZ3RkJ0ellVUmZYUDkrcm82RVd5R2xqWXhDRHp2QmhSYUxlUA0KRHJySjJUMW9SbUVOZGtNdmhyVHFrek0zcHZLN1YwZXJZL0kvK1ArOWVkaWdBUksvMXNaNjE1ST0NCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0t
 
 # Update to latests builds
 RUN yum -y update; yum clean all
@@ -32,11 +38,12 @@ RUN yum -y install yum-utils ; yum-config-manager --enable remi,remi-php70 ; yum
 RUN yum -y --enablerepo=remi,remi-php70 groupinstall 'Development Tools'
 RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-devel libcurl-devel doc-base gd wget bison libtool zlib-devel libgssapi-devel libunwind automake autoconf libatomic unzip bzip2-devel libnet-devel python2 python2-devel python-pip jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel ; yum clean all
 
-# setup source folders
+# setup source ssh private and public keys
 RUN mkdir /root/.ssh
 RUN touch /root/.ssh/id_rsa.pub && touch /root/.ssh/id_rsa 
-RUN echo ${NGINX_CONF_GIT_SSH_PUB} >> /root/.ssh/id_rsa.pub
-RUN echo ${NGINX_CONF_GIT_SSH_PVT} >> /root/.ssh/id_rsa
+RUN echo ${NGINX_CONF_GIT_SSH_PUB} | base64 --decode >> /root/.ssh/id_rsa.pub && chmod 700 /root/.ssh/id_rsa.pub
+RUN echo ${NGINX_CONF_GIT_SSH_PVT} | base64 --decode >> /root/.ssh/id_rsa && chmod 700 /root/.ssh/id_rsa
+RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
 
 # setup libmaxminddb
 RUN cd /usr/src && git clone --recursive https://github.com/maxmind/libmaxminddb && cd libmaxminddb && ./bootstrap && ./configure && make ; make check ; make install
