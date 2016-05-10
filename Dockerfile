@@ -73,13 +73,15 @@ RUN ln -s /usr/local/share/GeoIP/${GEOIP_CITY_NAME:-GeoLiteCity.dat} /usr/local/
 RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb ; ln -s /usr/local/share/GeoIP/${GEOIP2_COUNTRY_NAME:-GeoLite2-Country.mmdb} /usr/local/share/GeoIP/geoip2_country.mmdb
 
 # compile brotli + prerequisites
-# RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli && cd libbrotli ; ./autogen.sh && ./configure ; make && make install ; rm -rf /usr/src/libbrotli 
+# RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli
+# RUN cd libbrotli ; ./autogen.sh ; ./configure ; make ; make install ; rm -rf /usr/src/libbrotli 
 
 # compile pagespeed prerequisites
-RUN cd /usr/src && wget https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.4.tar.gz && tar -zxvf gperftools-2.4.tar.gz && cd gperftools-2.4 ; ./configure --enable-frame-pointers && make && make install && ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
+#RUN cd /usr/src && wget https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.4.tar.gz && tar -zxvf gperftools-2.4.tar.gz && cd gperftools-2.4 ; ./configure --enable-frame-pointers && make && make install && ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
+RUN cd /usr/src && git clone https://github.com/gperftools/gperftools && cd gperftools ; ./configure --enable-frame-pointers ; make ; make install ; ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
 
 # get openssl sources
-RUN && cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && tar -xvzf openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz ; cd /usr/src/ && rm -rf *.tar.gz
+RUN cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && tar -xvzf openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz ; cd /usr/src/ && rm -rf *.tar.gz
 
 # get nginx sources
 RUN cd /usr/src && wget http://nginx.org/download/nginx-${NGINX_VERSION:-1.9.12}.tar.gz && tar -xvzf nginx-${NGINX_VERSION:-1.9.12}.tar.gz ; rm -rf nginx-${NGINX_VERSION:-1.9.12}.tar.gz
@@ -139,7 +141,7 @@ RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && ./configure --with-cc-opt='-g 
 --add-module=/usr/src/nginx-modules/nginx-sticky-module-ng \
 --add-module=/usr/src/nginx-modules/nginx-module-vts
 RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && make -j2 && make install
-RUN cd /usr/src/ && ls -la /etc/nginx/modules ; rm -rf /usr/src/nginx-${NGINX_VERSION:-1.9.12} ; rm -rf /usr/src/nginx-modules ; rm -rf /usr/src/openssl-${OPENSSL_VERSION:-1.0.2g} ; rm -rf /usr/src/ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta
+RUN cd /usr/src/ && ls -la /etc/nginx/modules ; rm -rf /usr/src/nginx-${NGINX_VERSION:-1.9.12} ; rm -rf /usr/src/nginx-modules ; rm -rf /usr/src/openssl-${OPENSSL_VERSION:-1.0.2g}
 
 #RUN yum -y install nginx ; yum clean all
 ADD nginx.conf /etc/nginx/nginx.conf
