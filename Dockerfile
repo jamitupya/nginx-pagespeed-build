@@ -55,9 +55,9 @@ RUN touch ~/.ssh/id_rsa.pub && touch ~/.ssh/id_rsa
 RUN echo ${NGINX_CONF_GIT_SSH_PUB} | base64 --decode >> ~/.ssh/id_rsa.pub && chmod 700 ~/.ssh/id_rsa.pub
 RUN echo ${NGINX_CONF_GIT_SSH_PVT} | base64 --decode >> ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
 RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /etc/ssh/ssh_config
-#RUN ssh-agent /bin/bash
-#RUN ssh-add ~/.ssh/id_rsa ; ssh-add -l
+RUN ssh-agent /bin/bash
 RUN echo "    IdentityFile ~/.ssh/id_rsa" >> /etc/ssh/ssh_config
+RUN ssh-add ~/.ssh/id_rsa ; ssh-add -l
 #RUN ssh -T git@bitbucket.com
 
 # setup libmaxminddb
@@ -159,9 +159,9 @@ RUN curl https://git.centos.org/sources/httpd/c7/acf5cccf4afaecf3afeb18c50ae59fd
     --strip-components=1
 RUN sed -i -e 's/Apache/nginx/g' -e '/apache_pb.gif/d' \ 
     /etc/nginx/default/index.html
+RUN yum -y groupremove "Development Tools" ; yum -y remove *-devel ; yum -y update ; yum clean all
 
 EXPOSE 80
 EXPOSE 443
 
 CMD [ "/usr/sbin/nginx" ]
-CMD [ "/usr/sbin/nginx reload" ]
