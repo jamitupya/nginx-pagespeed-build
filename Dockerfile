@@ -79,14 +79,14 @@ RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/lo
 RUN cd /usr/src && wget https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.4.tar.gz && tar -zxvf gperftools-2.4.tar.gz && cd gperftools-2.4 ; ./configure --enable-frame-pointers && make && make install && ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
 
 # get openssl sources
-RUN cd /usr/src && cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && tar -xvzf openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz ; cd /usr/src/ && rm -rf *.tar.gz
+RUN && cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && tar -xvzf openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz ; cd /usr/src/ && rm -rf *.tar.gz
 
 # get nginx sources
 RUN cd /usr/src && wget http://nginx.org/download/nginx-${NGINX_VERSION:-1.9.12}.tar.gz && tar -xvzf nginx-${NGINX_VERSION:-1.9.12}.tar.gz ; rm -rf nginx-${NGINX_VERSION:-1.9.12}.tar.gz
 
 # get nginx module prerequisites
 RUN mkdir /usr/src/nginx-modules/ && cd /usr/src/nginx-modules/ && git clone https://github.com/simpl/ngx_devel_kit && git clone https://github.com/kyprizel/testcookie-nginx-module && git clone https://github.com/Lax/ngx_http_accounting_module.git && git clone https://github.com/openresty/headers-more-nginx-module && git clone https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng && git clone https://github.com/openresty/lua-nginx-module && git clone https://github.com/openresty/lua-upstream-nginx-module && git clone https://github.com/vozlt/nginx-module-vts && git clone https://github.com/google/ngx_brotli && git clone https://github.com/yzprofile/ngx_http_dyups_module && git clone https://github.com/cubicdaiya/ngx_dynamic_upstream && git clone https://github.com/leev/ngx_http_geoip2_module
-RUN wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz
+RUN cd /usr/src/nginx-module && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz
 RUN ls -la /usr/src/nginx-modules/
 
 # compile nginx prerequisites
