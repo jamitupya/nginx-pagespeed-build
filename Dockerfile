@@ -20,7 +20,7 @@ ENV NPS_VERSION=1.11.33.1
 ENV OPENSSL_VERSION=1.0.2h
 ENV OPENSSL_OLD=
 ENV NGINX_VERSION=1.10.0
-ENV NGINX_CONF_GIT_REPO=git@bitbucket.com:gahnget/template.git
+ENV NGINX_CONF_GIT_REPO=https://bitbucket.org/gahnget/template/
 ENV NGINX_CONF_GIT_BRANCH=master
 ENV GEOIP_CITY_NAME=GeoLiteCityv6.dat
 ENV GEOIP_COUNTRY_NAME=GeoLiteCountry.dat
@@ -55,9 +55,9 @@ RUN touch ~/.ssh/id_rsa.pub && touch ~/.ssh/id_rsa
 RUN echo ${NGINX_CONF_GIT_SSH_PUB} | base64 --decode >> ~/.ssh/id_rsa.pub && chmod 700 ~/.ssh/id_rsa.pub
 RUN echo ${NGINX_CONF_GIT_SSH_PVT} | base64 --decode >> ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
 RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /etc/ssh/ssh_config
-RUN ssh-agent /bin/bash
+#RUN ssh-agent /bin/bash
 RUN echo "    IdentityFile ~/.ssh/id_rsa" >> /etc/ssh/ssh_config
-RUN ssh-add ~/.ssh/id_rsa ; ssh-add -l
+#RUN ssh-add ~/.ssh/id_rsa ; ssh-add -l
 #RUN ssh -T git@bitbucket.com
 
 # setup libmaxminddb
