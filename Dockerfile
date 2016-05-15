@@ -50,13 +50,19 @@ RUN yum -y --enablerepo=remi,remi-php70 groupinstall 'Development Tools'
 RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-devel libcurl-devel gcc gcc-c++ doc-base gd wget bison libtool zlib-devel libgssapi-devel libunwind automake autoconf libatomic unzip bzip2-devel libnet-devel python2 python2-devel python-pip jansson-devel libxml2 libxslt libcap-ng-devel libnet-devel readline-devel libpcap-devel libcap-ng-devel libyaml-devel GeoIP-devel lm_sensors-libs net-snmp-libs net-snap gd-devel libnetfilter_queue-devel libnl-devel popt-devel lsof ipvsadm openssh nss-devel ncurses-devel glib2-devel file-devel geoip-devel luajit-devel luajit lua-devel ; yum clean all
 
 # setup source ssh private and public keys
+# Create known_hosts
+
+
 RUN mkdir ~/.ssh
+RUN touch ~/.ssh/known_hosts
+# Add github (or your git server) fingerprint to known hosts
+RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 RUN touch ~/.ssh/id_rsa.pub && touch ~/.ssh/id_rsa 
 RUN echo ${NGINX_CONF_GIT_SSH_PUB} | base64 --decode >> ~/.ssh/id_rsa.pub && chmod 700 ~/.ssh/id_rsa.pub
 RUN echo ${NGINX_CONF_GIT_SSH_PVT} | base64 --decode >> ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
 RUN echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /etc/ssh/ssh_config
 #RUN ssh-agent /bin/bash
-RUN echo "    IdentityFile ~/.ssh/id_rsa" >> /etc/ssh/ssh_config
+RUN echo "IdentityFile ~/.ssh/id_rsa" >> /etc/ssh/ssh_config
 #RUN ssh-add ~/.ssh/id_rsa ; ssh-add -l
 #RUN ssh -T git@bitbucket.com
 
@@ -73,12 +79,12 @@ RUN ln -s /usr/local/share/GeoIP/${GEOIP_CITY_NAME:-GeoLiteCity.dat} /usr/local/
 RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb ; ln -s /usr/local/share/GeoIP/${GEOIP2_COUNTRY_NAME:-GeoLite2-Country.mmdb} /usr/local/share/GeoIP/geoip2_country.mmdb
 
 # compile brotli + prerequisites
-RUN cd /usr/src/ ; git clone https://github.com/bagder/libbrotli
-RUN cd /usr/src/libbrotli ; ./autogen.sh ; ./configure ; make ; make install ; rm -rf /usr/src/libbrotli 
+RUN cd /usr/src/ ; git clone https://github.com/bagder/libbrotli libbrotli
+RUN cd /usr/src/libbrotli ; sh autogen.sh ; sh configure ; make ; make install ; rm -rf /usr/src/libbrotli 
 
 # compile pagespeed prerequisites
 #RUN cd /usr/src && wget https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.4.tar.gz && tar -zxvf gperftools-2.4.tar.gz && cd gperftools-2.4 ; ./configure --enable-frame-pointers && make && make install && ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
-RUN cd /usr/src && git clone https://github.com/gperftools/gperftools && cd gperftools ; ./configure --enable-frame-pointers ; make ; make install ; ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
+RUN cd /usr/src && git clone https://github.com/gperftools/gperftools gperftools && cd /usr/src/gperftools ; ./configure --enable-frame-pointers ; make ; make install ; ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
 
 # get openssl sources
 RUN cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz && tar -xvzf openssl-${OPENSSL_VERSION:-1.0.2g}.tar.gz ; cd /usr/src/ && rm -rf *.tar.gz
