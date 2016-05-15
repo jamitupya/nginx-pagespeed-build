@@ -73,8 +73,8 @@ RUN ln -s /usr/local/share/GeoIP/${GEOIP_CITY_NAME:-GeoLiteCity.dat} /usr/local/
 RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/local/share/GeoIP/geoip2_city.mmdb ; ln -s /usr/local/share/GeoIP/${GEOIP2_COUNTRY_NAME:-GeoLite2-Country.mmdb} /usr/local/share/GeoIP/geoip2_country.mmdb
 
 # compile brotli + prerequisites
-# RUN cd /usr/src/ && git clone https://github.com/bagder/libbrotli
-# RUN cd libbrotli ; ./autogen.sh ; ./configure ; make ; make install ; rm -rf /usr/src/libbrotli 
+RUN cd /usr/src/ ; git clone https://github.com/bagder/libbrotli
+RUN cd libbrotli ; ./autogen.sh ; ./configure ; make ; make install ; rm -rf /usr/src/libbrotli 
 
 # compile pagespeed prerequisites
 #RUN cd /usr/src && wget https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.4.tar.gz && tar -zxvf gperftools-2.4.tar.gz && cd gperftools-2.4 ; ./configure --enable-frame-pointers && make && make install && ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
@@ -148,6 +148,7 @@ ADD nginx.conf /etc/nginx/nginx.conf
 
 # pull git repo for conf.d directory
 RUN git clone ${NGINX_CONF_GIT_REPO} /etc/nginx/conf.d
+RUN cd /etc/nginx/conf.d/ ; ls -la 
 
 # setup final paths and init.d for nginx
 RUN mkdir /var/lib/nginx && mkdir /etc/nginx/default && mkdir /logs/ && mkdir /logs/nginx && mkdir /var/lib/nginx/tmp && mkdir /tmp/nginx_cache && id -u nginx &>/dev/null || useradd -s /usr/sbin/nologin -r nginx && chown -R nginx:nginx /etc/nginx && chown -R nginx:nginx /var/lib/nginx && chown -R nginx:nginx /logs/nginx
@@ -158,7 +159,7 @@ RUN curl https://git.centos.org/sources/httpd/c7/acf5cccf4afaecf3afeb18c50ae59fd
     --strip-components=1
 RUN sed -i -e 's/Apache/nginx/g' -e '/apache_pb.gif/d' \ 
     /etc/nginx/default/index.html
-RUN yum -y groupremove "Development Tools" ; yum -y remove *-devel ; yum -y update ; yum clean all
+RUN yum -y groupremove 'Development Tools' ; yum -y remove *-devel ; yum -y update ; yum clean all
 
 EXPOSE 80
 EXPOSE 443
