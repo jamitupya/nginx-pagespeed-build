@@ -74,7 +74,7 @@ RUN ln -s /usr/local/share/GeoIP/${GEOIP2_CITY_NAME:-GeoLite2-City.mmdb} /usr/lo
 
 # compile brotli + prerequisites
 RUN cd /usr/src/ ; git clone https://github.com/bagder/libbrotli
-RUN cd libbrotli ; ./autogen.sh ; ./configure ; make ; make install ; rm -rf /usr/src/libbrotli 
+RUN cd /usr/src/libbrotli ; ./autogen.sh ; ./configure ; make ; make install ; rm -rf /usr/src/libbrotli 
 
 # compile pagespeed prerequisites
 #RUN cd /usr/src && wget https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.4.tar.gz && tar -zxvf gperftools-2.4.tar.gz && cd gperftools-2.4 ; ./configure --enable-frame-pointers && make && make install && ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
