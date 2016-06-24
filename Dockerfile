@@ -19,7 +19,7 @@ MAINTAINER Jamitupya <jamitupya@gmail.com>
 ENV NPS_VERSION=1.11.33.1
 ENV OPENSSL_VERSION=1.0.2h
 ENV OPENSSL_OLD=
-ENV NGINX_VERSION=1.11.1
+ENV NGINX_VERSION=1.10.0
 ENV NGINX_CONF_GIT_REPO=https://bitbucket.org/gahnget/template/
 ENV NGINX_CONF_GIT_BRANCH=master
 ENV GEOIP_CITY_NAME=GeoLiteCityv6.dat
@@ -94,7 +94,7 @@ RUN cd /usr/src && wget http://nginx.org/download/nginx-${NGINX_VERSION:-1.9.12}
 
 # get nginx module prerequisites
 RUN mkdir /usr/src/nginx-modules/ && cd /usr/src/nginx-modules/ && git clone https://github.com/simpl/ngx_devel_kit && git clone https://github.com/kyprizel/testcookie-nginx-module && git clone https://github.com/Lax/ngx_http_accounting_module.git && git clone https://github.com/openresty/headers-more-nginx-module && git clone https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng && git clone https://github.com/openresty/lua-nginx-module && git clone https://github.com/openresty/lua-upstream-nginx-module && git clone https://github.com/vozlt/nginx-module-vts && git clone https://github.com/google/ngx_brotli && git clone https://github.com/yzprofile/ngx_http_dyups_module && git clone https://github.com/cubicdaiya/ngx_dynamic_upstream && git clone https://github.com/leev/ngx_http_geoip2_module
-RUN cd /usr/src/nginx-modules && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz
+RUN cd /usr/src/nginx-modules && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz && git clone https://github.com/nbs-system/naxsi && cd naxsi && git checkout http2
 RUN ls -la /usr/src/nginx-modules/
 
 # compile nginx prerequisites
@@ -145,7 +145,8 @@ RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && ./configure --with-cc-opt='-g 
 --add-dynamic-module=/usr/src/nginx-modules/ngx_http_geoip2_module \
 --add-dynamic-module=/usr/src/nginx-modules/ngx_http_accounting_module \
 --add-module=/usr/src/nginx-modules/nginx-sticky-module-ng \
---add-module=/usr/src/nginx-modules/nginx-module-vts
+--add-module=/usr/src/nginx-modules/nginx-module-vts \
+--add-module=/usr/src/nginx-modules/naxsi
 RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && make -j2 && make install
 RUN cd /usr/src/ && ls -la /etc/nginx/modules ; rm -rf /usr/src/nginx-${NGINX_VERSION:-1.9.12} ; rm -rf /usr/src/nginx-modules ; rm -rf /usr/src/openssl-${OPENSSL_VERSION:-1.0.2g}
 
