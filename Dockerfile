@@ -145,8 +145,7 @@ RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && ./configure --with-cc-opt='-g 
 --add-dynamic-module=/usr/src/nginx-modules/ngx_http_geoip2_module \
 --add-dynamic-module=/usr/src/nginx-modules/ngx_http_accounting_module \
 --add-module=/usr/src/nginx-modules/nginx-sticky-module-ng \
---add-module=/usr/src/nginx-modules/nginx-module-vts \
---add-module=/usr/src/nginx-modules/naxsi
+--add-module=/usr/src/nginx-modules/nginx-module-vts
 RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && make -j2 && make install
 RUN cd /usr/src/ && ls -la /etc/nginx/modules ; rm -rf /usr/src/nginx-${NGINX_VERSION:-1.9.12} ; rm -rf /usr/src/nginx-modules ; rm -rf /usr/src/openssl-${OPENSSL_VERSION:-1.0.2g}
 
