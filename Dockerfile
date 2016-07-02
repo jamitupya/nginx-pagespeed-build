@@ -71,7 +71,7 @@ RUN echo /usr/local/lib >> /etc/ld.so.conf.d/local.conf
 RUN ldconfig ; rm -rf /usr/src/libmaxminddb
 
 # setup autoupdate of geoip databases using temp account details; can be overwritten by including an ADD of GeoIP.conf to the path /usr/local/etc/
-RUN cd /usr/src/ && git clone https://github.com/maxmind/geoipupdate && cd geoipupdate && ./bootstrap ; ./configure ; make ; make install && mkdir /usr/local/share/GeoIP
+RUN cd /usr/src/ && git clone https://github.com/maxmind/geoipupdate && cd geoipupdate && ./bootstrap ; ./configure ; make ; make install ; mkdir /usr/local/share/GeoIP
 ADD GeoIP.conf /usr/local/etc/GeoIP.conf
 RUN /usr/local/bin/geoipupdate
 RUN ln -s /usr/local/share/GeoIP/${GEOIP_CITY_NAME:-GeoLiteCity.dat} /usr/local/share/GeoIP/geoip_city.dat ; ln -s /usr/local/share/GeoIP/${GEOIP_COUNTRY_NAME:-GeoLiteCountry.dat} /usr/local/share/GeoIP/geoip_country.dat
@@ -92,8 +92,8 @@ RUN cd /usr/src/ && wget https://www.openssl.org/source/openssl-${OPENSSL_VERSIO
 RUN cd /usr/src && wget http://nginx.org/download/nginx-${NGINX_VERSION:-1.9.12}.tar.gz && tar -xvzf nginx-${NGINX_VERSION:-1.9.12}.tar.gz ; rm -rf nginx-${NGINX_VERSION:-1.9.12}.tar.gz
 
 # get nginx module prerequisites
-RUN mkdir /usr/src/nginx-modules/ && cd /usr/src/nginx-modules/ && git clone https://github.com/simpl/ngx_devel_kit && git clone https://github.com/kyprizel/testcookie-nginx-module && git clone https://github.com/Lax/ngx_http_accounting_module.git && git clone https://github.com/openresty/headers-more-nginx-module && git clone https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng && git clone https://github.com/openresty/lua-nginx-module && git clone https://github.com/openresty/lua-upstream-nginx-module && git clone https://github.com/vozlt/nginx-module-vts && git clone https://github.com/google/ngx_brotli && git clone https://github.com/yzprofile/ngx_http_dyups_module && git clone https://github.com/cubicdaiya/ngx_dynamic_upstream && git clone https://github.com/leev/ngx_http_geoip2_module
-RUN cd /usr/src/nginx-modules && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz && git clone https://github.com/nbs-system/naxsi && cd naxsi && git checkout http2
+RUN mkdir /usr/src/nginx-modules/ && cd /usr/src/nginx-modules/ && git clone https://github.com/simpl/ngx_devel_kit && git clone https://github.com/kyprizel/testcookie-nginx-module && git clone https://github.com/Lax/ngx_http_accounting_module.git && git clone https://github.com/openresty/headers-more-nginx-module && git clone https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng && git clone https://github.com/openresty/lua-nginx-module && git clone https://github.com/openresty/lua-upstream-nginx-module && git clone https://github.com/vozlt/nginx-module-vts && git clone https://github.com/google/ngx_brotli && git clone https://github.com/yzprofile/ngx_http_dyups_module && git clone https://github.com/cubicdaiya/ngx_dynamic_upstream && git clone https://github.com/leev/ngx_http_geoip2_module && git clone https://github.com/nbs-system/naxsi && cd naxsi && git checkout http2
+RUN cd /usr/src/nginx-modules && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION:-1.10.33.6}-beta.zip && unzip release-${NPS_VERSION:-1.10.33.6}-beta.zip && cd ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION:-1.10.33.6}.tar.gz && tar -xzvf ${NPS_VERSION:-1.10.33.6}.tar.gz
 RUN ls -la /usr/src/nginx-modules/
 
 # compile nginx prerequisites
