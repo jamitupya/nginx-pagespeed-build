@@ -51,10 +51,9 @@ RUN yum -y --enablerepo=remi,remi-php70 install git pcre-devel libxml2 libxml2-d
 
 # setup source ssh private and public keys
 # Create known_hosts
-
-
 RUN mkdir ~/.ssh
 RUN touch ~/.ssh/known_hosts
+
 # Add github (or your git server) fingerprint to known hosts
 RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 RUN touch ~/.ssh/id_rsa.pub && touch ~/.ssh/id_rsa 
