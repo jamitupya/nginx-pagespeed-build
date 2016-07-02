@@ -26,15 +26,6 @@ ENV GEOIP_CITY_NAME=GeoLiteCityv6.dat
 ENV GEOIP_COUNTRY_NAME=GeoLiteCountry.dat
 ENV GEOIP2_CITY_NAME=GeoLite2-City.mmdb
 ENV GEOIP2_COUNTRY_NAME=GeoLite2-Country.mmdb
-#ENV KEEPALIVED_R_INSTANCE=
-#ENV KEEPALIVED_R_ID=
-#ENV KEEPALIVED_R_INTERFACE=
-#ENV KEEPALIVED_R_VIP=
-#ENV KEEPALIVED_R_PASS=
-#ENV KEEPALIVED_G_EMAIL_FROM=example@example.com
-#ENV KEEPALIVED_G_EMAIL_TO=example@example.com
-#ENV KEEPALIVED_G_SMTP=127.0.0.1
-#ENV KEEPALIVED_G_ROUTER=docker-nginx-01
 
 # UPDATE THESE TO YOUR OWN. DO NOT USE THESE, both must be in base64 format
 ENV NGINX_CONF_GIT_SSH_PUB=c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCQVFEcFdYdVFNRC8zWUd2L05ja2dvQXdOT2JBdGdyMmFaTE5CWGtYMkNzZm1HblowRURLRXhiMWNQWnF0dE00TzBHZ3RDd3hTeU5TK3VrVndUdG9aTmRXMnl6M3A1a0VZa01PWTBBeWJqODJNeVRSZ1FpMTk3Rkg5TDdwZTZLQVFiOUcyQm5UZkxIQmg3Y29URnpzaDdrdlJObW9ESmhTUkZXVGNrZjlKU0FWSU0zRDZUZmJOSG9FUjhod20vSWs3bFlsRlFxNThwcE5aMTAwQ0hYQklkQS9zbnVPcEJpdmh0amV4Q0paRHJ5NTVZRlFkc2lQTkFVT0YxbStDN3EzYUFvNjNQNTVVa2NJSEZ3V05XTmNUbTc5SGg3TFNiaEtXY3dkdUlOYjA3NHFjbmpmRmV5Um81U2MvNjhDWTlwS1dLRmVaMG95MUN6RS9uVU5NUG5HSmxScXogcm9vdEBjZW50b3MtYnVpbGQtZG9ja2VyLmVwaWNpZ3VhbmEuY29t
@@ -82,7 +73,6 @@ RUN cd /usr/src/ ; git clone https://github.com/bagder/libbrotli libbrotli
 RUN cd /usr/src/libbrotli ; sh autogen.sh ; sh configure ; make ; make install ; rm -rf /usr/src/libbrotli 
 
 # compile pagespeed prerequisites
-#RUN cd /usr/src && wget https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.4.tar.gz && tar -zxvf gperftools-2.4.tar.gz && cd gperftools-2.4 ; ./configure --enable-frame-pointers && make && make install && ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
 RUN cd /usr/src && git clone https://github.com/gperftools/gperftools gperftools && cd /usr/src/gperftools ; ./configure --enable-frame-pointers ; make ; make install ; ldconfig ; cd /usr/src/ && rm -rf /usr/src/gperftools*
 
 # get openssl sources
@@ -138,6 +128,7 @@ RUN cd /usr/src/nginx-${NGINX_VERSION:-1.9.12} && ./configure --with-cc-opt='-g 
 --add-dynamic-module=/usr/src/nginx-modules/ngx_pagespeed-release-${NPS_VERSION:-1.10.33.6}-beta \
 --add-dynamic-module=/usr/src/nginx-modules/lua-upstream-nginx-module \
 #--add-dynamic-module=/usr/src/nginx-modules/ngx_brotli \
+--add-dynamic-module=/usr/src/nginx-modules/naxsi/naxsi_src \
 --add-dynamic-module=/usr/src/nginx-modules/testcookie-nginx-module \
 --add-dynamic-module=/usr/src/nginx-modules/ngx_http_dyups_module \
 --add-dynamic-module=/usr/src/nginx-modules/ngx_dynamic_upstream \
