@@ -148,7 +148,7 @@ RUN git clone ${NGINX_CONF_GIT_REPO} /etc/nginx/conf.d
 RUN cd /etc/nginx/conf.d/ ; ls -la 
 
 # setup final paths and init.d for nginx
-RUN mkdir /var/lib/nginx && mkdir /etc/nginx/default && mkdir /logs/ && mkdir /logs/nginx && mkdir /var/lib/nginx/tmp && mkdir /tmp/nginx_cache && id -u nginx &>/dev/null || useradd -s /usr/sbin/nologin -r nginx && chown -R nginx:nginx /etc/nginx && chown -R nginx:nginx /var/lib/nginx && chown -R nginx:nginx /logs/nginx
+RUN mkdir /var/lib/nginx && mkdir /etc/nginx/default && mkdir /logs && mkdir /logs/nginx && mkdir /var/lib/nginx/tmp && mkdir /tmp/nginx_cache && id -u nginx &>/dev/null || useradd -s /usr/sbin/nologin -r nginx && chown -R nginx:nginx /etc/nginx && chown -R nginx:nginx /var/lib/nginx && chown -R nginx:nginx /logs/nginx
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN curl https://git.centos.org/sources/httpd/c7/acf5cccf4afaecf3afeb18c50ae59fd5c6504910 \
